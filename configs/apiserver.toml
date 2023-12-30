@@ -1,0 +1,3 @@
+bind_addr = ":8080"
+log_level = "debug"
+database_url = "host=127.0.0.1 port=5432 user=restapi password=1234 sslmode=disable"
