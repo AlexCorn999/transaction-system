@@ -6,7 +6,8 @@ CREATE TABLE
         currency VARCHAR(5) NOT NULL,
         uploaded_at TIMESTAMPTZ NOT NULL,
         amount numeric,
-        status VARCHAR(10) NOT NULL
+        status VARCHAR(10) NOT NULL,
+        user_id integer REFERENCES users (id)
     );
 -- +goose StatementEnd
 

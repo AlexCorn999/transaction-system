@@ -7,7 +7,8 @@ CREATE TABLE
         wallet_number VARCHAR(255) NOT NULL,
         currency VARCHAR(5) NOT NULL,
         uploaded_at TIMESTAMPTZ NOT NULL,
-        amount numeric
+        amount numeric,
+        user_id integer REFERENCES users (id)
     );
 
 -- +goose StatementEnd
