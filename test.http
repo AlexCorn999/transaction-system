@@ -1,0 +1,19 @@
+POST http://localhost:8080/invoice HTTP/1.1
+content-type: application/json
+
+{
+    "currency": "USD",
+    "amount": 0.1,
+    "wallet_number" : "1"
+}
+
+###
+
+POST http://localhost:8080/withdraw HTTP/1.1
+content-type: application/json
+
+{
+    "currency": "USD",
+    "amount": 64,
+    "wallet_number" : "123456"
+}

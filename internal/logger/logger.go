@@ -30,6 +30,16 @@ func (r *LoggingResponseWriter) WriteHeader(statusCode int) {
 	r.ResponseData.Status = statusCode
 }
 
+func logFields(handler string) log.Fields {
+	return log.Fields{
+		"handler": handler,
+	}
+}
+
+func LogError(handler string, err error) {
+	log.WithFields(logFields(handler)).Error(err)
+}
+
 // withLogging выполняет функцию middleware с логированием.
 // Содержит сведения о URI, методе запроса и времени, затраченного на его выполнение.
 // Сведения об ответах должны содержать код статуса и размер содержимого ответа.
