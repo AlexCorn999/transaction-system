@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -12,7 +13,7 @@ import (
 )
 
 type WithdrawRepository interface {
-	Withdraw(ctx context.Context, withdraw *domain.Withdraw) error
+	Withdraw(tx *sql.Tx, withdraw domain.Withdraw) error
 	Balance(ctx context.Context, withdraw *domain.Withdraw) (float32, error)
 	WithdrawBalance(ctx context.Context, withdraw *domain.Withdraw) (float32, error)
 }
@@ -53,7 +54,7 @@ func (w *Withdraw) Withdraw(ctx context.Context, withdraw domain.Withdraw) error
 	}
 
 	// сразу списываем бонусы
-	err = w.repo.Withdraw(ctx, &withdraw)
+	err = w.repo.Withdraw(tx, withdraw)
 	if err != nil {
 		return err
 	}
@@ -64,26 +65,21 @@ func (w *Withdraw) Withdraw(ctx context.Context, withdraw domain.Withdraw) error
 		return err
 	}
 
-	// ffffff
-	fmt.Println(balance)
-
 	// узнаем баланс списанных сумм
 	balanceWithdraws, err := w.repo.WithdrawBalance(ctx, &withdraw)
 	if err != nil {
 		return err
 	}
 
-	// ffffff
+	fmt.Println(balance)
 	fmt.Println(balanceWithdraws)
 
 	// проверка для проведения списания бонусов
 	sum := decimal.NewFromFloat32(balance).Sub(decimal.NewFromFloat32(balanceWithdraws))
-	if sum.LessThan(decimal.Zero) {
+	if sum.LessThanOrEqual(decimal.Zero) {
 		// если баланс в минусе
 		tx.Rollback()
 
-		// ffffff
-		fmt.Println("ОТКАТТТТ")
 		return domain.ErrNoMoney
 	}
 

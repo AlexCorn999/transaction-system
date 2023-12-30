@@ -34,3 +34,12 @@ type Withdraw struct {
 	UploadedAt   string  `json:"-"`
 	WalletNumber string  `json:"wallet_number"`
 }
+
+type BalanceOutput struct {
+	Currency string  `json:"currency"`
+	Amount   float32 `json:"amount"`
+}
+
+type BalanceResult struct {
+	Balance []BalanceOutput
+}

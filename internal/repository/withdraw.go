@@ -9,8 +9,8 @@ import (
 )
 
 // Withdraw добавляет списания бонусов пользователя.
-func (s *Storage) Withdraw(ctx context.Context, withdraw *domain.Withdraw) error {
-	_, err := s.DB.ExecContext(ctx, "INSERT INTO withdrawals (wallet_number, currency, uploaded_at, amount) values ($1, $2, $3, $4)",
+func (s *Storage) Withdraw(tx *sql.Tx, withdraw domain.Withdraw) error {
+	_, err := tx.Exec("INSERT INTO withdrawals (wallet_number, currency, uploaded_at, amount) values ($1, $2, $3, $4)",
 		withdraw.WalletNumber, withdraw.Currency, withdraw.UploadedAt, withdraw.Amount)
 	if err != nil {
 		return fmt.Errorf("postgreSQL: withdraw %s", err)
