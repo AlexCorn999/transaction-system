@@ -8,8 +8,8 @@ import (
 	"github.com/AlexCorn999/transaction-system/internal/logger"
 )
 
-// authMiddleware выполняет функцию middleware авторизации.
-// Получает токен из запроса и передает в контекст userID который совершает данный запрос.
+// authMiddleware performs the middleware authorization function.
+// Gets the token from the request and passes to the context the userID that makes the request.
 func (s *APIServer) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := getTokenFromRequest(r)
@@ -31,7 +31,7 @@ func (s *APIServer) authMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// getTokenFromRequest получает token из cookie.
+// getTokenFromRequest gets the token from the cookie.
 func getTokenFromRequest(r *http.Request) (string, error) {
 	token, err := r.Cookie("token")
 	if err != nil {

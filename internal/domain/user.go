@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	validate        *validator.Validate
-	ErrUserNotFound = errors.New("user with such credentials not found")
+	validate           *validator.Validate
+	ErrUserNotFound    = errors.New("user with such credentials not found")
+	ErrIncorrectUserID = errors.New("incorrect user id")
 )
 
 type User struct {
@@ -21,7 +22,6 @@ type User struct {
 
 type UserIDKey string
 
-// UserIDKeyForContext ключ для context.
 const UserIDKeyForContext UserIDKey = "userID"
 
 func init() {

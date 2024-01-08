@@ -14,13 +14,12 @@ import (
 
 // APIServer ...
 type APIServer struct {
-	storage  *repository.Storage
-	logger   *log.Logger
-	router   *chi.Mux
-	config   *config.Config
-	users    *service.Users
-	invoices *service.Invoices
-	withdraw *service.Withdraw
+	storage *repository.Storage
+	logger  *log.Logger
+	router  *chi.Mux
+	config  *config.Config
+	users   *service.Users
+	money   *service.Money
 }
 
 func NewAPIServer() *APIServer {
@@ -31,6 +30,7 @@ func NewAPIServer() *APIServer {
 	}
 }
 
+// Start starts and configures the server.
 func (s *APIServer) Start() error {
 	s.config.ParseFlags()
 	s.configureRouter()
@@ -49,14 +49,14 @@ func (s *APIServer) Start() error {
 	hasher := hash.NewSHA1Hasher("salt")
 	s.users = service.NewUsers(db, hasher, []byte("sample secret"), s.config.TokenTTL)
 
-	s.invoices = service.NewInvoices(db)
-	s.withdraw = service.NewWithdraw(db, db)
+	s.money = service.NewInvoices(db, db)
 
 	s.logger.Info("starting api server")
 
 	return http.ListenAndServe(s.config.BindAddr, s.router)
 }
 
+// configureRouter configures endpoint routing.
 func (s *APIServer) configureRouter() {
 	s.router.Use(logger.WithLogging)
 	s.router.Post("/api/user/register", s.SighUp)
@@ -64,9 +64,10 @@ func (s *APIServer) configureRouter() {
 	s.router.With(s.authMiddleware).Post("/invoice", s.Invoice)
 	s.router.With(s.authMiddleware).Post("/withdraw", s.Withdraw)
 	s.router.With(s.authMiddleware).Get("/balance/actual", s.BalanceActual)
-	s.router.With(s.authMiddleware).Get("/balance/hold", s.BalanceHold)
+	s.router.With(s.authMiddleware).Get("/balance/frozen", s.BalanceFrozen)
 }
 
+// configureLogger sets the logger configuration.
 func (s *APIServer) configureLogger() error {
 	level, err := log.ParseLevel(s.config.LogLevel)
 	if err != nil {
@@ -76,6 +77,7 @@ func (s *APIServer) configureLogger() error {
 	return nil
 }
 
+// configureStore returns an object for working with the database.
 func (s *APIServer) configureStore() (*repository.Storage, error) {
 	db, err := repository.NewStorage(s.config.DataBaseURL)
 	if err != nil {

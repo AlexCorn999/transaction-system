@@ -1,9 +1,52 @@
-POST http://localhost:8080/invoice HTTP/1.1
+POST http://localhost:8080/api/user/register HTTP/1.1
 content-type: application/json
 
 {
+    "login": "ale",
+    "password": "12345"
+}
+
+###
+
+POST http://localhost:8080/api/user/register HTTP/1.1
+content-type: application/json
+
+{
+    "login": "kate",
+    "password": "7777"
+}
+
+###
+
+POST http://localhost:8080/api/user/login HTTP/1.1
+content-type: application/json
+
+{
+    "login": "ale",
+    "password": "12345"
+}
+
+###
+
+POST http://localhost:8080/invoice HTTP/1.1
+content-type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzMyNDI5LCJpYXQiOjE3MDQ3MzA2Mjl9.IiJ9TvXXhXbI9KwX-AngHZnefmtWR4g-dJTDZ0BG5Ag
+
+{
     "currency": "USD",
-    "amount": 2,
+    "amount": 15,
+    "wallet_number" : "321"
+}
+
+###
+
+POST http://localhost:8080/invoice HTTP/1.1
+content-type: application/json
+Cookie:token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMyNjA3LCJpYXQiOjE3MDQ3MzA4MDd9.DpTS7pybsGm4I4NSwhyZpuF9183ulVYfCOgMHX_3NLs
+
+{
+    "currency": "USD",
+    "amount": 20,
     "wallet_number" : "123"
 }
 
@@ -11,9 +54,16 @@ content-type: application/json
 
 POST http://localhost:8080/withdraw HTTP/1.1
 content-type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzMzODA1LCJpYXQiOjE3MDQ3MzIwMDV9._moWMMZEh9_itCcLkEjTfAcItLL9BMxnbAysypj6mOs
 
 {
-    "currency": "USD",
-    "amount": 1,
+    "currency": "SEK",
+    "amount": 59,
     "wallet_number" : "123"
 }
+
+###
+
+GET http://localhost:8080/balance/actual HTTP/1.1
+content-type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzMyNjQ4LCJpYXQiOjE3MDQ3MzA4NDh9.F3zAkwtRHV4YLo0SDQTtxiSgKHsQDAlbAnDD8HTqPrs

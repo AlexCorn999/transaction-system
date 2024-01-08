@@ -12,6 +12,7 @@ import (
 	"github.com/AlexCorn999/transaction-system/internal/repository"
 )
 
+// SighUp is responsible for user registration.
 func (s *APIServer) SighUp(w http.ResponseWriter, r *http.Request) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -45,11 +46,12 @@ func (s *APIServer) SighUp(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// атоматический авторизируем пользователя
+	// atomatic user authorization
 	r.Body = io.NopCloser(bytes.NewBuffer(data))
 	s.SighIn(w, r)
 }
 
+// SighIn is responsible for authorizing the user. Issues an access token.
 func (s *APIServer) SighIn(w http.ResponseWriter, r *http.Request) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -73,7 +75,7 @@ func (s *APIServer) SighIn(w http.ResponseWriter, r *http.Request) {
 
 	token, err := s.users.SignIn(r.Context(), usr)
 	if err != nil {
-		// пользователь не найден.
+		// user not found
 		if errors.Is(err, domain.ErrUserNotFound) {
 			logger.LogError("signIn", err)
 			w.WriteHeader(http.StatusUnauthorized)

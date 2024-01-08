@@ -12,11 +12,11 @@ var (
 type InvoiceStatus string
 
 const (
-	// заказ загружен в систему, но не попал в обработку.
+	// the transaction has been loaded into the system, but has not been processed.
 	Created InvoiceStatus = "CREATED"
-	// зачисление выполнено.
+	// crediting has been completed.
 	Success InvoiceStatus = "SUCCESS"
-	// возникла ошибка при обработки операции.
+	// an error occurred while processing an operation.
 	Error InvoiceStatus = "ERROR"
 )
 
@@ -26,6 +26,7 @@ type Invoice struct {
 	UploadedAt   string        `json:"-"`
 	WalletNumber string        `json:"wallet_number"`
 	Status       InvoiceStatus `json:"-"`
+	UserID       int64         `json:"-"`
 }
 
 type Withdraw struct {
@@ -33,6 +34,7 @@ type Withdraw struct {
 	Amount       float32 `json:"amount"`
 	UploadedAt   string  `json:"-"`
 	WalletNumber string  `json:"wallet_number"`
+	UserID       int64   `json:"-"`
 }
 
 type BalanceOutput struct {
@@ -41,5 +43,5 @@ type BalanceOutput struct {
 }
 
 type BalanceResult struct {
-	Balance []BalanceOutput
+	Balance []BalanceOutput `json:"balance"`
 }
