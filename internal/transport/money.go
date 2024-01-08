@@ -1,53 +1,55 @@
 package transport
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/AlexCorn999/transaction-system/internal/domain"
 	"github.com/AlexCorn999/transaction-system/internal/logger"
 )
 
 // Invoice credits money to the user's account.
-func (s *APIServer) Invoice(w http.ResponseWriter, r *http.Request) {
-	data, err := io.ReadAll(r.Body)
-	if err != nil {
-		logger.LogError("invoice", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
+func (s *APIServer) Invoice(data []byte, userID string) {
 	var invoice domain.Invoice
 	if err := json.Unmarshal(data, &invoice); err != nil {
 		logger.LogError("invoice", err)
-		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if err := s.money.Invoice(r.Context(), &invoice); err != nil {
+	id, err := strconv.Atoi(userID)
+	if err != nil {
+		logger.LogError("invoice", err)
+		return
+	}
+
+	ctx := context.WithValue(context.Background(), domain.UserIDKeyForContext, int64(id))
+
+	if err := s.money.Invoice(ctx, &invoice); err != nil {
 		switch {
 		case errors.Is(err, domain.ErrIncorrectCurrency):
 			logger.LogError("invoice", err)
-			w.WriteHeader(http.StatusUnprocessableEntity)
+			//w.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		case errors.Is(err, domain.ErrIncorrectAmount):
 			logger.LogError("invoice", err)
-			w.WriteHeader(http.StatusUnprocessableEntity)
+			//w.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		case errors.Is(err, domain.ErrIncorrectWalletNumber):
 			logger.LogError("invoice", err)
-			w.WriteHeader(http.StatusUnprocessableEntity)
+			//w.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		default:
 			logger.LogError("invoice", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			//w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	}
 
-	w.WriteHeader(http.StatusAccepted)
+	//w.WriteHeader(http.StatusAccepted)
 }
 
 // Withdraw withdraws money from the user's account.
