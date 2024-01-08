@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -18,6 +17,7 @@ type MoneyManagementRepository interface {
 	InvoiceToUser(ctx context.Context, invoice *domain.Invoice) error
 	Balance(ctx context.Context, withdraw *domain.Withdraw) (float32, error)
 	BalanceActual(userID int64) ([]domain.BalanceOutput, error)
+	BalanceFrozen(userID int64) ([]domain.BalanceOutput, error)
 	WithdrawBalance(ctx context.Context, withdraw *domain.Withdraw) (float32, error)
 }
 
@@ -116,7 +116,7 @@ func (m *Money) Withdraw(ctx context.Context, withdraw domain.Withdraw) error {
 		UserID:       int64(invoiceUserID),
 	}
 
-	// запись денег другому пользователю
+	// transferring money to another user
 	err = m.repo.InvoiceToUser(repository.InjectTx(ctx, tx), &invoice)
 	if err != nil {
 		return err
@@ -128,17 +128,11 @@ func (m *Money) Withdraw(ctx context.Context, withdraw domain.Withdraw) error {
 		return err
 	}
 
-	// CHECK
-	fmt.Println("BALANCE -", balance)
-
-	// узнаем баланс списанных сумм
+	// find out the balance of amounts written off
 	balanceWithdraws, err := m.repo.WithdrawBalance(repository.InjectTx(ctx, tx), &withdraw)
 	if err != nil {
 		return err
 	}
-
-	// CHECK
-	fmt.Println("WITHDRAWALS -", balanceWithdraws)
 
 	// verification for bonus debit execution
 	sum := decimal.NewFromFloat32(balance).Sub(decimal.NewFromFloat32(balanceWithdraws))
@@ -158,4 +152,13 @@ func (m *Money) Balance(ctx context.Context) ([]domain.BalanceOutput, error) {
 		return nil, domain.ErrIncorrectUserID
 	}
 	return m.repo.BalanceActual(userID)
+}
+
+// BalanceFrozen displays the user's balance in the created status.
+func (m *Money) BalanceFrozen(ctx context.Context) ([]domain.BalanceOutput, error) {
+	userID, ok := ctx.Value(domain.UserIDKeyForContext).(int64)
+	if !ok {
+		return nil, domain.ErrIncorrectUserID
+	}
+	return m.repo.BalanceFrozen(userID)
 }

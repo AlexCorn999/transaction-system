@@ -22,8 +22,8 @@ POST http://localhost:8080/api/user/login HTTP/1.1
 content-type: application/json
 
 {
-    "login": "ale",
-    "password": "12345"
+    "login": "kate",
+    "password": "7777"
 }
 
 ###
@@ -42,11 +42,11 @@ Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0N
 
 POST http://localhost:8080/invoice HTTP/1.1
 content-type: application/json
-Cookie:token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMyNjA3LCJpYXQiOjE3MDQ3MzA4MDd9.DpTS7pybsGm4I4NSwhyZpuF9183ulVYfCOgMHX_3NLs
+Cookie:token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMzOTQwLCJpYXQiOjE3MDQ3MzIxNDB9.n5TZ4UVfDXeXWV9X3eU41uYK-3DTjNcZ4ri_yQIlk-I
 
 {
-    "currency": "USD",
-    "amount": 20,
+    "currency": "SEK",
+    "amount": 1,
     "wallet_number" : "123"
 }
 
@@ -58,7 +58,7 @@ Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0N
 
 {
     "currency": "SEK",
-    "amount": 59,
+    "amount": 1,
     "wallet_number" : "123"
 }
 
@@ -66,4 +66,10 @@ Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0N
 
 GET http://localhost:8080/balance/actual HTTP/1.1
 content-type: application/json
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzMyNjQ4LCJpYXQiOjE3MDQ3MzA4NDh9.F3zAkwtRHV4YLo0SDQTtxiSgKHsQDAlbAnDD8HTqPrs
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMzOTQwLCJpYXQiOjE3MDQ3MzIxNDB9.n5TZ4UVfDXeXWV9X3eU41uYK-3DTjNcZ4ri_yQIlk-I
+
+###
+
+GET http://localhost:8080/balance/frozen HTTP/1.1
+content-type: application/json
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMzOTQwLCJpYXQiOjE3MDQ3MzIxNDB9.n5TZ4UVfDXeXWV9X3eU41uYK-3DTjNcZ4ri_yQIlk-I

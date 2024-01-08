@@ -97,14 +97,34 @@ func (s *APIServer) Withdraw(w http.ResponseWriter, r *http.Request) {
 func (s *APIServer) BalanceActual(w http.ResponseWriter, r *http.Request) {
 	balance, err := s.money.Balance(r.Context())
 	if err != nil {
-		logger.LogError("balance", err)
+		logger.LogError("balanceActual", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	balanceJSON, err := json.Marshal(balance)
 	if err != nil {
-		logger.LogError("balance", err)
+		logger.LogError("balanceActual", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(balanceJSON)
+}
+
+func (s *APIServer) BalanceFrozen(w http.ResponseWriter, r *http.Request) {
+	balance, err := s.money.BalanceFrozen(r.Context())
+	if err != nil {
+		logger.LogError("balanceFrozen", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	balanceJSON, err := json.Marshal(balance)
+	if err != nil {
+		logger.LogError("balanceFrozen", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

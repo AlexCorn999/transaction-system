@@ -67,7 +67,7 @@ func (s *Storage) CheckWallet(ctx context.Context, withdraw domain.Withdraw) (in
 		if errors.Is(err, sql.ErrNoRows) {
 			return 0, domain.ErrIncorrectWalletNumber
 		} else {
-			return 0, fmt.Errorf("postgreSQL: invoice %w", err)
+			return 0, fmt.Errorf("postgreSQL: checkWallet %w", err)
 		}
 	}
 	return userID, nil
@@ -79,7 +79,7 @@ func (s *Storage) InvoiceToUser(ctx context.Context, invoice *domain.Invoice) er
 	_, err := tx.Exec("INSERT INTO invoices (wallet_number, currency, uploaded_at, amount, status, user_id) values ($1, $2, $3, $4, $5, $6)",
 		invoice.WalletNumber, invoice.Currency, invoice.UploadedAt, invoice.Amount, invoice.Status, invoice.UserID)
 	if err != nil {
-		return fmt.Errorf("postgreSQL: invoice %w", err)
+		return fmt.Errorf("postgreSQL: invoiceToUser %w", err)
 	}
 
 	return nil
@@ -120,10 +120,35 @@ func (s *Storage) WithdrawBalance(ctx context.Context, withdraw *domain.Withdraw
 	return balance, nil
 }
 
-// Balance returns the user's wallet balance with success status.
+// BalanceActual returns the user's wallet balance with success status.
 func (s *Storage) BalanceActual(userID int64) ([]domain.BalanceOutput, error) {
 	// поменять статус на success TODO
 	rows, err := s.DB.Query("SELECT i.currency, SUM(i.amount) - COALESCE(w.total_amount, 0) AS difference FROM invoices AS i LEFT JOIN (SELECT currency, SUM(amount) AS total_amount FROM withdrawals WHERE user_id=$1 GROUP BY currency) AS w ON i.currency = w.currency WHERE i.user_id=$2 AND i.status=$3 GROUP BY i.currency, w.total_amount", userID, userID, domain.Created)
+	if err != nil {
+		return nil, fmt.Errorf("postgreSQL: balanceActual %w", err)
+	}
+	defer rows.Close()
+
+	balanceOutput := make([]domain.BalanceOutput, 0)
+
+	for rows.Next() {
+		balance := domain.BalanceOutput{}
+		if err := rows.Scan(&balance.Currency, &balance.Amount); err != nil {
+			return nil, err
+		}
+		balanceOutput = append(balanceOutput, balance)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return balanceOutput, nil
+}
+
+// BalanceFrozen displays the user's balance in the created status.
+func (s *Storage) BalanceFrozen(userID int64) ([]domain.BalanceOutput, error) {
+	rows, err := s.DB.Query("SELECT currency, SUM(amount) FROM invoices WHERE user_id=$1 AND status=$2 GROUP BY currency", userID, domain.Created)
 	if err != nil {
 		return nil, fmt.Errorf("postgreSQL: balance %w", err)
 	}
