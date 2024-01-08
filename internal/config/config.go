@@ -3,14 +3,16 @@ package config
 import (
 	"flag"
 	"log"
+	"time"
 
 	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
-	BindAddr    string `toml:"bind_addr"`
-	LogLevel    string `toml:"log_level"`
-	DataBaseURL string `toml:"database_url"`
+	BindAddr    string        `toml:"bind_addr"`
+	LogLevel    string        `toml:"log_level"`
+	DataBaseURL string        `toml:"database_url"`
+	TokenTTL    time.Duration `toml:"tokenTTL"`
 }
 
 var (
@@ -28,6 +30,7 @@ func NewConfig() *Config {
 	return &Config{
 		BindAddr: "8080",
 		LogLevel: "debug",
+		TokenTTL: time.Minute * 30,
 	}
 }
 

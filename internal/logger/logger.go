@@ -30,9 +30,19 @@ func (r *LoggingResponseWriter) WriteHeader(statusCode int) {
 	r.ResponseData.Status = statusCode
 }
 
-// withLogging выполняет функцию middleware с логированием.
-// Содержит сведения о URI, методе запроса и времени, затраченного на его выполнение.
-// Сведения об ответах должны содержать код статуса и размер содержимого ответа.
+func logFields(handler string) log.Fields {
+	return log.Fields{
+		"handler": handler,
+	}
+}
+
+func LogError(handler string, err error) {
+	log.WithFields(logFields(handler)).Error(err)
+}
+
+// withLogging performs a middleware function with logging.
+// Contains information about the URI, the method of the request, and the time taken to complete the request.
+// The response information should contain a status code and the size of the response content.
 func WithLogging(next http.Handler) http.Handler {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
