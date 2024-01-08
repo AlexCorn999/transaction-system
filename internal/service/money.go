@@ -11,14 +11,14 @@ import (
 )
 
 type MoneyManagementRepository interface {
-	Invoice(ctx context.Context, invoice *domain.Invoice) error
-	Withdraw(ctx context.Context, withdraw domain.Withdraw) error
-	CheckWallet(ctx context.Context, withdraw domain.Withdraw) (int, error)
-	InvoiceToUser(ctx context.Context, invoice *domain.Invoice) error
-	Balance(ctx context.Context, withdraw *domain.Withdraw) (float32, error)
+	Invoice(ctx context.Context, invoice *domain.InvoiceDB) error
+	Withdraw(ctx context.Context, withdraw *domain.WithdrawDB) error
+	CheckWallet(ctx context.Context, withdraw *domain.WithdrawDB) (int, error)
+	InvoiceToUser(ctx context.Context, invoice *domain.InvoiceDB) error
+	Balance(ctx context.Context, withdraw *domain.WithdrawDB) (float64, error)
 	BalanceActual(userID int64) ([]domain.BalanceOutput, error)
 	BalanceFrozen(userID int64) ([]domain.BalanceOutput, error)
-	WithdrawBalance(ctx context.Context, withdraw *domain.Withdraw) (float32, error)
+	WithdrawBalance(ctx context.Context, withdraw *domain.WithdrawDB) (float64, error)
 }
 
 type Money struct {
@@ -56,14 +56,20 @@ func (m *Money) Invoice(ctx context.Context, invoice *domain.Invoice) error {
 		return domain.ErrIncorrectUserID
 	}
 
-	invoice.UploadedAt = time.Now().Format(time.RFC3339)
-	invoice.Status = domain.Created
-	invoice.UserID = userID
+	// invoice for database with decimal amount
+	invoiceForDB := domain.InvoiceDB{
+		Currency:     invoice.Currency,
+		Amount:       decimal.NewFromFloat(invoice.Amount),
+		UploadedAt:   time.Now().Format(time.RFC3339),
+		WalletNumber: invoice.WalletNumber,
+		Status:       domain.Created,
+		UserID:       userID,
+	}
 
-	return m.repo.Invoice(ctx, invoice)
+	return m.repo.Invoice(ctx, &invoiceForDB)
 }
 
-// Withdraw реализует списание валюты с кошелька.
+// Withdraw realizes currency debit from the wallet.
 func (m *Money) Withdraw(ctx context.Context, withdraw domain.Withdraw) error {
 
 	// if the wallet number is empty
@@ -87,8 +93,14 @@ func (m *Money) Withdraw(ctx context.Context, withdraw domain.Withdraw) error {
 		return domain.ErrIncorrectUserID
 	}
 
-	withdraw.UploadedAt = time.Now().Format(time.RFC3339)
-	withdraw.UserID = userID
+	// withdraw for database with decimal amount
+	withdrawForDB := domain.WithdrawDB{
+		Currency:     withdraw.Currency,
+		Amount:       decimal.NewFromFloat(withdraw.Amount),
+		UploadedAt:   time.Now().Format(time.RFC3339),
+		WalletNumber: withdraw.WalletNumber,
+		UserID:       userID,
+	}
 
 	// transaction initiation
 	tx, err := m.storage.DB.BeginTx(ctx, nil)
@@ -97,19 +109,20 @@ func (m *Money) Withdraw(ctx context.Context, withdraw domain.Withdraw) error {
 	}
 
 	// bonus debit
-	err = m.repo.Withdraw(repository.InjectTx(ctx, tx), withdraw)
+	err = m.repo.Withdraw(repository.InjectTx(ctx, tx), &withdrawForDB)
 	if err != nil {
 		return err
 	}
 
-	invoiceUserID, err := m.repo.CheckWallet(repository.InjectTx(ctx, tx), withdraw)
+	invoiceUserID, err := m.repo.CheckWallet(repository.InjectTx(ctx, tx), &withdrawForDB)
 	if err != nil {
 		return err
 	}
 
-	invoice := domain.Invoice{
+	// invoice for database with decimal amount
+	invoice := domain.InvoiceDB{
 		Currency:     withdraw.Currency,
-		Amount:       withdraw.Amount,
+		Amount:       decimal.NewFromFloat(withdraw.Amount),
 		UploadedAt:   time.Now().Format(time.RFC3339),
 		WalletNumber: withdraw.WalletNumber,
 		Status:       domain.Created,
@@ -123,19 +136,19 @@ func (m *Money) Withdraw(ctx context.Context, withdraw domain.Withdraw) error {
 	}
 
 	// find out the wallet balance where the status is success
-	balance, err := m.repo.Balance(repository.InjectTx(ctx, tx), &withdraw)
+	balance, err := m.repo.Balance(repository.InjectTx(ctx, tx), &withdrawForDB)
 	if err != nil {
 		return err
 	}
 
 	// find out the balance of amounts written off
-	balanceWithdraws, err := m.repo.WithdrawBalance(repository.InjectTx(ctx, tx), &withdraw)
+	balanceWithdraws, err := m.repo.WithdrawBalance(repository.InjectTx(ctx, tx), &withdrawForDB)
 	if err != nil {
 		return err
 	}
 
 	// verification for bonus debit execution
-	sum := decimal.NewFromFloat32(balance).Sub(decimal.NewFromFloat32(balanceWithdraws))
+	sum := decimal.NewFromFloat(balance).Sub(decimal.NewFromFloat(balanceWithdraws))
 	if sum.LessThan(decimal.Zero) {
 		// if the balance is negative
 		tx.Rollback()

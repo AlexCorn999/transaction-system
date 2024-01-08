@@ -94,6 +94,7 @@ func (s *APIServer) Withdraw(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+// BalanceActual returns the user's wallet balance with success status.
 func (s *APIServer) BalanceActual(w http.ResponseWriter, r *http.Request) {
 	balance, err := s.money.Balance(r.Context())
 	if err != nil {
@@ -114,6 +115,7 @@ func (s *APIServer) BalanceActual(w http.ResponseWriter, r *http.Request) {
 	w.Write(balanceJSON)
 }
 
+// BalanceFrozen displays the user's balance in the created status.
 func (s *APIServer) BalanceFrozen(w http.ResponseWriter, r *http.Request) {
 	balance, err := s.money.BalanceFrozen(r.Context())
 	if err != nil {

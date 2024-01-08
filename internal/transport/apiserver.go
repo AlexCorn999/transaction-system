@@ -2,6 +2,7 @@ package transport
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/AlexCorn999/transaction-system/internal/config"
 	"github.com/AlexCorn999/transaction-system/internal/hash"
@@ -14,12 +15,13 @@ import (
 
 // APIServer ...
 type APIServer struct {
-	storage *repository.Storage
-	logger  *log.Logger
-	router  *chi.Mux
-	config  *config.Config
-	users   *service.Users
-	money   *service.Money
+	storage         *repository.Storage
+	logger          *log.Logger
+	router          *chi.Mux
+	config          *config.Config
+	users           *service.Users
+	money           *service.Money
+	orderProcessing *service.OrderProcessing
 }
 
 func NewAPIServer() *APIServer {
@@ -48,10 +50,24 @@ func (s *APIServer) Start() error {
 
 	hasher := hash.NewSHA1Hasher("salt")
 	s.users = service.NewUsers(db, hasher, []byte("sample secret"), s.config.TokenTTL)
-
 	s.money = service.NewInvoices(db, db)
+	s.orderProcessing = service.NewOrderProcessing(db)
 
 	s.logger.Info("starting api server")
+
+	// moves the order to a new status every 10 seconds
+	ticker := time.NewTicker(time.Second * 10)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				s.orderProcess()
+			default:
+				continue
+			}
+
+		}
+	}()
 
 	return http.ListenAndServe(s.config.BindAddr, s.router)
 }

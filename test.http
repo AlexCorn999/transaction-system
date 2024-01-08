@@ -22,8 +22,8 @@ POST http://localhost:8080/api/user/login HTTP/1.1
 content-type: application/json
 
 {
-    "login": "kate",
-    "password": "7777"
+    "login": "ale",
+    "password": "12345"
 }
 
 ###
@@ -42,23 +42,23 @@ Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0N
 
 POST http://localhost:8080/invoice HTTP/1.1
 content-type: application/json
-Cookie:token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMzOTQwLCJpYXQiOjE3MDQ3MzIxNDB9.n5TZ4UVfDXeXWV9X3eU41uYK-3DTjNcZ4ri_yQIlk-I
+Cookie:token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzM5MDU2LCJpYXQiOjE3MDQ3MzcyNTZ9.5JT9NPS7X8t-a1_RIFTnHrnlpxSbUfq44yUnfBY3rSA
 
 {
-    "currency": "SEK",
-    "amount": 1,
-    "wallet_number" : "123"
+    "currency": "USD",
+    "amount": 0.0000000000000000000000000123,
+    "wallet_number" : "321"
 }
 
 ###
 
 POST http://localhost:8080/withdraw HTTP/1.1
 content-type: application/json
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzMzODA1LCJpYXQiOjE3MDQ3MzIwMDV9._moWMMZEh9_itCcLkEjTfAcItLL9BMxnbAysypj6mOs
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzM5MDU2LCJpYXQiOjE3MDQ3MzcyNTZ9.5JT9NPS7X8t-a1_RIFTnHrnlpxSbUfq44yUnfBY3rSA
 
 {
     "currency": "SEK",
-    "amount": 1,
+    "amount": 0.0000123,
     "wallet_number" : "123"
 }
 
@@ -66,10 +66,10 @@ Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0N
 
 GET http://localhost:8080/balance/actual HTTP/1.1
 content-type: application/json
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMzOTQwLCJpYXQiOjE3MDQ3MzIxNDB9.n5TZ4UVfDXeXWV9X3eU41uYK-3DTjNcZ4ri_yQIlk-I
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzM5MDU2LCJpYXQiOjE3MDQ3MzcyNTZ9.5JT9NPS7X8t-a1_RIFTnHrnlpxSbUfq44yUnfBY3rSA
 
 ###
 
 GET http://localhost:8080/balance/frozen HTTP/1.1
 content-type: application/json
-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzA0NzMzOTQwLCJpYXQiOjE3MDQ3MzIxNDB9.n5TZ4UVfDXeXWV9X3eU41uYK-3DTjNcZ4ri_yQIlk-I
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzA0NzM5MDU2LCJpYXQiOjE3MDQ3MzcyNTZ9.5JT9NPS7X8t-a1_RIFTnHrnlpxSbUfq44yUnfBY3rSA

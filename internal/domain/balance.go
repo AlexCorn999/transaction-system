@@ -1,6 +1,10 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/shopspring/decimal"
+)
 
 var (
 	ErrIncorrectWalletNumber = errors.New("incorrect wallet number")
@@ -22,26 +26,39 @@ const (
 
 type Invoice struct {
 	Currency     string        `json:"currency"`
-	Amount       float32       `json:"amount"`
+	Amount       float64       `json:"amount"`
 	UploadedAt   string        `json:"-"`
 	WalletNumber string        `json:"wallet_number"`
 	Status       InvoiceStatus `json:"-"`
 	UserID       int64         `json:"-"`
 }
 
+type InvoiceDB struct {
+	Currency     string
+	Amount       decimal.Decimal
+	UploadedAt   string
+	WalletNumber string
+	Status       InvoiceStatus
+	UserID       int64
+}
+
 type Withdraw struct {
 	Currency     string  `json:"currency"`
-	Amount       float32 `json:"amount"`
+	Amount       float64 `json:"amount"`
 	UploadedAt   string  `json:"-"`
 	WalletNumber string  `json:"wallet_number"`
 	UserID       int64   `json:"-"`
 }
 
-type BalanceOutput struct {
-	Currency string  `json:"currency"`
-	Amount   float32 `json:"amount"`
+type WithdrawDB struct {
+	Currency     string
+	Amount       decimal.Decimal
+	UploadedAt   string
+	WalletNumber string
+	UserID       int64
 }
 
-type BalanceResult struct {
-	Balance []BalanceOutput `json:"balance"`
+type BalanceOutput struct {
+	Currency string          `json:"currency"`
+	Amount   decimal.Decimal `json:"amount"`
 }
